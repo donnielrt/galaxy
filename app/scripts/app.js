@@ -12,6 +12,10 @@ angular.module('galaxyApp', [
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       })
+      .when('/simulation/', {
+        templateUrl: 'views/simulation.html',
+        controller: 'Simulation'
+      })
       .otherwise({
         redirectTo: '/'
       });
