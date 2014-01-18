@@ -5,18 +5,18 @@ angular.module('galaxyApp', [
   'ngResource',
   'ngSanitize',
   'ngRoute'
-  ])
+])
 .config(function ($routeProvider) {
     $routeProvider
-    .when('/', {
+      .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
-    })
-    .when('/simulation/', {
-        templateUrl: 'views/simulation.html',
-        controller: 'Simulation'
-    })
-    .otherwise({
-        redirectTo: '/'
-    });
-});
+        controller: 'Main'
+      })
+      .when('/simulation/', {
+          templateUrl: 'views/simulation.html',
+          controller: 'Simulation'
+        })
+      .otherwise({
+          redirectTo: '/'
+        });
+  });

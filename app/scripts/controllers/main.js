@@ -1,6 +1,6 @@
 'use strict';
 
 angular.module('galaxyApp')
-  .controller('MainCtrl', function ($scope) {
+  .controller('Main', function ($scope) {
 
   });
