@@ -8,10 +8,12 @@ angular.module('galaxyApp', [
 ])
 .config(function ($routeProvider) {
     $routeProvider
+      // Home page
       .when('/', {
         templateUrl: 'views/main.html',
         controller: 'Main'
       })
+      // Simulation page
       .when('/simulation/', {
           templateUrl: 'views/simulation.html',
           controller: 'Simulation'

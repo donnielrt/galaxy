@@ -89,3 +89,18 @@ body {
         border-bottom: 0;
     }
 }
+
+// Simulation styles
+.g-simulation {
+    width: 100%;
+    height: 500px;
+
+    border: 2px solid #eee;
+
+    .g-canvas {
+        width: 100%;
+        height: 100%;
+
+        background: #000;
+    }
+}

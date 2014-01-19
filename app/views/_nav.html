@@ -1,0 +1,5 @@
+<ul ng-model="nav" class="nav nav-pills pull-right">
+    <li ng-repeat="navItem in nav" ng-class="navItem.class">
+      <a ng-href="{{navItem.link}}">{{navItem.text}}</a>
+    </li>
+</ul>
