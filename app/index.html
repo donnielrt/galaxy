@@ -25,11 +25,7 @@
     <![endif]-->
 
     <div class="header" ng-controller="Nav">
-      <ul ng-model="nav" class="nav nav-pills pull-right">
-        <li ng-repeat="navItem in nav" ng-class="navItem.class">
-          <a ng-href="{{navItem.link}}">{{navItem.text}}</a>
-        </li>
-      </ul>
+      <ng-include src="'views/_nav.html'"></ng-include>
       <h3 class="text-muted">Galaxy</h3>
     </div>
 
@@ -40,6 +36,8 @@
     <div class="footer">
       <p>&copy; Donniel Thomas</p>
     </div>
+
+    <!-- TODO: Load scripts with require.js -->
 
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
