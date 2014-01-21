@@ -6,10 +6,17 @@ angular.module('galaxyApp')
         function link($scope, $element) {
             // Our <canvas> element in the template
             var canvas = $element[0];
+            var context = canvas.getContext('2d');
 
-            // The image is placed onto the <canvas>
-            function paintCanvas(image) {
-                var context = canvas.getContext('2d');
+            // The background image
+            var background;
+            var box;
+
+            // The zoom box
+            var boxWidth = 300;
+            var boxHeight = 100;
+
+            function prepareCanvas() {
                 // <canvas> uses the actual HTML width and height in its coordinate
                 // system instead of using the styled width/heights. So we set the
                 // HTML dimensions to the styled dimensions.
@@ -22,12 +29,31 @@ angular.module('galaxyApp')
                 canvas.width = cWidth;
                 canvas.height = cHeight;
 
-                // Draw it!
-                context.drawImage(image, 0, 0, cWidth, cHeight);
+                background  = new CanvasLayers.Container(canvas, false);
+
+                box = new CanvasLayers.Layer(0, 0, boxWidth, boxHeight);
+
+                // Draw the box on top of the canvas
+                background.getChildren().add(box);
+
+                box.onRender = function(layer, rect, context) {
+                    context.strokeStyle = '#fff';
+                    context.strokeRect(0, 0, boxWidth, boxHeight);
+                };
+            }
+
+            // The image is placed onto the <canvas>
+            function paintCanvas(image) {
+                background.onRender = function(layer, rect, context) {
+                    // Draw the image on to the canvas
+                    context.drawImage(image, 0, 0, layer.getWidth(), layer.getHeight());
+                };
+
+                background.redraw();
               }
 
-            // Download image, and thus start the render
-            function init() {
+            // Load our background image which we'll base the simulation on
+            function loadSource() {
                 // Container for our galaxy background image - the
                 // one that we paint the pixels over
                 var image = new Image();
@@ -42,6 +68,62 @@ angular.module('galaxyApp')
                 // TODO: Set this in config
                 // Load the image
                 image.src = '/images/milky-way-galaxy.jpg';
+            }
+
+            // Show a rectangle over a zoomable area
+            function getZoomBounds(x, y) {
+                var bounds = {
+                    left: 0,
+                    right: canvas.width,
+                    top: 0,
+                    bottom: canvas.height
+                };
+
+                // Try and center the rectangle on x, y
+                var left = Math.max(bounds.left, x - (boxWidth/2));
+                var top = Math.max(bounds.top, y - (boxHeight/2));
+
+                // TODO: Account for right and bottom bounds too
+
+                return {
+                    left: left,
+                    top: top
+                };
+            }
+
+            // Zoom into a section of the image
+            function zoom(x, y) {
+                console.log("Zooming into ", x, y);
+            }
+
+            // Bind handlers for our events
+            function bindEvents() {
+                // Show the zoom bounds over the given area
+                function hover(x, y) {
+                    // Note: The canvas-layers plugin automatically bounds the 
+                    // box to the background container
+                    box.moveTo(x, y);
+                    background.redraw();
+                }
+
+                // Hover handler
+                canvas.addEventListener('mousemove', function(e) {
+                    // Zoom into specified section
+                    hover(e.offsetX, e.offsetY);
+                }, false);
+
+                // Click handler
+                canvas.addEventListener('click', function(e) {
+                    // Zoom into specified section
+                    zoom(e.offsetX, e.offsetY);
+                }, false);
+            }
+
+            // Download image, and thus start the render
+            function init() {
+                prepareCanvas();
+                loadSource();
+                bindEvents();
               }
 
             init();
