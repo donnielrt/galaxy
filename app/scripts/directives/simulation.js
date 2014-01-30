@@ -10,9 +10,9 @@ angular.module('galaxyApp')
 
             // The background image
             var background;
-            var box;
 
             // The zoom box
+            var box;
             var boxWidth = 300;
             var boxHeight = 100;
 
@@ -20,7 +20,6 @@ angular.module('galaxyApp')
                 // <canvas> uses the actual HTML width and height in its coordinate
                 // system instead of using the styled width/heights. So we set the
                 // HTML dimensions to the styled dimensions.
-                // Unfortunately, this is a String pixel value that we have to massage
                 var cWidth = parseInt(getComputedStyle(canvas).width
                   .replace(/px/, ''), 10);
                 var cHeight = parseInt(getComputedStyle(canvas).height
@@ -38,6 +37,8 @@ angular.module('galaxyApp')
 
                 box.onRender = function(layer, rect, context) {
                     context.strokeStyle = '#fff';
+                    // context.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                    // context.fillRect(0, 0, boxWidth, boxHeight);
                     context.strokeRect(0, 0, boxWidth, boxHeight);
                 };
             }
@@ -92,8 +93,19 @@ angular.module('galaxyApp')
             }
 
             // Zoom into a section of the image
-            function zoom(x, y) {
-                console.log("Zooming into ", x, y);
+            function zoom() {
+                var imageData = context.getImageData(box.getX(), box.getY(), boxWidth, boxHeight);  
+                // var pixels = imageData.data;
+
+                background.onRender = function(layer, rect, context) {
+                    // Clear out box
+
+                    // Draw image data onto whole canvas
+                    context.clearRect(0, 0, canvas.width, canvas.height);  
+                    context.putImageData(imageData, 0, 0);
+                };
+
+                background.redraw();
             }
 
             // Bind handlers for our events
@@ -114,8 +126,8 @@ angular.module('galaxyApp')
 
                 // Click handler
                 canvas.addEventListener('click', function(e) {
-                    // Zoom into specified section
-                    zoom(e.offsetX, e.offsetY);
+                    // Zoom into currently highlighted section
+                    zoom();
                 }, false);
             }
 
