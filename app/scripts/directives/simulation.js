@@ -3,139 +3,104 @@
 angular.module('galaxyApp')
     .directive('simulation', function() {
         // Since we want to modify the DOM, we create a link function
+        // TODO: Is this the best way to render this?
+        // TODO: Is the simulation suited best in the controller, or in the 
+        // directive?
         function link($scope, $element) {
-            // Our <canvas> element in the template
-            var canvas = $element[0];
-            var context = canvas.getContext('2d');
+            
+            // DOM Element
+            // -----------
 
-            // The background image
-            var background;
+            // The container for the <canvas> we produce
+            var element = $element[0];
+            // Container dimensions
+            var width;
+            var height;
 
-            // The zoom box
-            var box;
-            var boxWidth = 300;
-            var boxHeight = 100;
+            // Three.js objects
+            // ----------------
 
-            function prepareCanvas() {
-                // <canvas> uses the actual HTML width and height in its coordinate
-                // system instead of using the styled width/heights. So we set the
-                // HTML dimensions to the styled dimensions.
-                var cWidth = parseInt(getComputedStyle(canvas).width
-                  .replace(/px/, ''), 10);
-                var cHeight = parseInt(getComputedStyle(canvas).height
-                  .replace(/px/, ''), 10);
+            var scene;
+            var camera;
+            var renderer;
 
-                canvas.width = cWidth;
-                canvas.height = cHeight;
+            // Scene settings
+            // --------------
 
-                background  = new CanvasLayers.Container(canvas, false);
+            var aspectRatio;
+            var cameraPosition = 5;
+            var fieldOfView = 75;
+            // The closest object from the camera that's rendered
+            var nearPlane = 0.1;
+            // The farthest object from the camera that's rendered
+            var clippingPlane = 1000;
 
-                box = new CanvasLayers.Layer(0, 0, boxWidth, boxHeight);
+            // Actors
+            // ------
 
-                // Draw the box on top of the canvas
-                background.getChildren().add(box);
+            // The object that refers to the cube we render
+            var cube;
+            // A 'geometry' contains the points (vertices) and fill (faces) of 
+            // the cube
+            var geometry;
+            // The material the cube is built with
+            var material;
 
-                box.onRender = function(layer, rect, context) {
-                    context.strokeStyle = '#fff';
-                    // context.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                    // context.fillRect(0, 0, boxWidth, boxHeight);
-                    context.strokeRect(0, 0, boxWidth, boxHeight);
-                };
+            // Create the three.js objects we need
+            function prepareScene() {
+                console.log('Preparing scene');
+
+                // The container doesn't have any width/height specified by default
+                width = parseFloat(getComputedStyle(element)
+                    .width.replace(/px/, ''));
+                height = parseFloat(getComputedStyle(element)
+                    .height.replace(/px/, ''));
+                aspectRatio = width / height;
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(
+                    fieldOfView, aspectRatio, nearPlane, clippingPlane);
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize(width, height);
+
+                element.appendChild(renderer.domElement);
             }
 
-            // The image is placed onto the <canvas>
-            function paintCanvas(image) {
-                background.onRender = function(layer, rect, context) {
-                    // Draw the image on to the canvas
-                    context.drawImage(image, 0, 0, layer.getWidth(), layer.getHeight());
-                };
+            // Place objects on the scene
+            function paintCanvas() {
+                console.log('Placing objects');
+                
+                // Build a 1x1x1 cube made of MeshBasicMaterial and add it to 
+                // the scene. 
+                geometry = new THREE.CubeGeometry(1,1,1);
+                material = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-                background.redraw();
+                // Merge the cube with the material
+                cube = new THREE.Mesh(geometry, material);
+                scene.add( cube );
+
+                // Pan the camera out from 0, 0, 0
+                camera.position.z = cameraPosition;
               }
 
-            // Load our background image which we'll base the simulation on
-            function loadSource() {
-                // Container for our galaxy background image - the
-                // one that we paint the pixels over
-                var image = new Image();
+            // Animation loop
+            function render() {
+                requestAnimationFrame(render);
 
-                // We should wait till the image is downloaded before
-                // attempting to paint it onto the canvas
-                image.addEventListener('load', function() {
-                      paintCanvas(image);
-                    },
-                    false);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
 
-                // TODO: Set this in config
-                // Load the image
-                image.src = '/images/milky-way-galaxy.jpg';
+                renderer.render(scene, camera);
             }
 
-            // Show a rectangle over a zoomable area
-            function getZoomBounds(x, y) {
-                var bounds = {
-                    left: 0,
-                    right: canvas.width,
-                    top: 0,
-                    bottom: canvas.height
-                };
-
-                // Try and center the rectangle on x, y
-                var left = Math.max(bounds.left, x - (boxWidth/2));
-                var top = Math.max(bounds.top, y - (boxHeight/2));
-
-                // TODO: Account for right and bottom bounds too
-
-                return {
-                    left: left,
-                    top: top
-                };
-            }
-
-            // Zoom into a section of the image
-            function zoom() {
-                var imageData = context.getImageData(box.getX(), box.getY(), boxWidth, boxHeight);  
-                // var pixels = imageData.data;
-
-                background.onRender = function(layer, rect, context) {
-                    // Clear out box
-
-                    // Draw image data onto whole canvas
-                    context.clearRect(0, 0, canvas.width, canvas.height);  
-                    context.putImageData(imageData, 0, 0);
-                };
-
-                background.redraw();
-            }
-
-            // Bind handlers for our events
-            function bindEvents() {
-                // Show the zoom bounds over the given area
-                function hover(x, y) {
-                    // Note: The canvas-layers plugin automatically bounds the 
-                    // box to the background container
-                    box.moveTo(x, y);
-                    background.redraw();
-                }
-
-                // Hover handler
-                canvas.addEventListener('mousemove', function(e) {
-                    // Zoom into specified section
-                    hover(e.offsetX, e.offsetY);
-                }, false);
-
-                // Click handler
-                canvas.addEventListener('click', function(e) {
-                    // Zoom into currently highlighted section
-                    zoom();
-                }, false);
-            }
-
-            // Download image, and thus start the render
+            // Program flow begins here
             function init() {
-                prepareCanvas();
-                loadSource();
-                bindEvents();
+                console.log('Initializing');
+                prepareScene();
+                paintCanvas();
+                console.log('Preparing to render');
+                render();
               }
 
             init();
