@@ -1,7 +1,7 @@
 // TODO: Split up into separate files
-$icon-font-path: "/bower_components/sass-bootstrap/fonts/";
+$icon-font-path: "../bower_components/sass-bootstrap/fonts/";
 
-@import 'sass-bootstrap/lib/bootstrap';
+@import '../bower_components/sass-bootstrap/lib/bootstrap';
 
 .browsehappy {
     margin: 0.2em 0;

@@ -23,12 +23,18 @@ angular.module('galaxyApp')
             var scene;
             var camera;
             var renderer;
+            var light;
+            var controls;
 
             // Scene settings
             // --------------
 
             var aspectRatio;
-            var cameraPosition = 5;
+            var cameraPosition = {
+                x: 0,
+                y: 0,
+                z: 5
+            };
             var fieldOfView = 75;
             // The closest object from the camera that's rendered
             var nearPlane = 0.1;
@@ -58,6 +64,7 @@ angular.module('galaxyApp')
                 aspectRatio = width / height;
 
                 scene = new THREE.Scene();
+
                 camera = new THREE.PerspectiveCamera(
                     fieldOfView, aspectRatio, nearPlane, clippingPlane);
 
@@ -70,28 +77,31 @@ angular.module('galaxyApp')
             // Place objects on the scene
             function paintCanvas() {
                 console.log('Placing objects');
-                
+
                 // Build a 1x1x1 cube made of MeshBasicMaterial and add it to 
                 // the scene. 
                 geometry = new THREE.CubeGeometry(1,1,1);
-                material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                material = new THREE.MeshBasicMaterial({ 
+                    color: 0xcccccc,
+                    wireframe: true
+                });
 
                 // Merge the cube with the material
                 cube = new THREE.Mesh(geometry, material);
                 scene.add( cube );
 
                 // Pan the camera out from 0, 0, 0
-                camera.position.z = cameraPosition;
+                camera.position.z = cameraPosition.z;
+
+                // Controls to move the scene
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
               }
 
             // Animation loop
             function render() {
                 requestAnimationFrame(render);
-
-                cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
-
                 renderer.render(scene, camera);
+                controls.update();
             }
 
             // Program flow begins here
