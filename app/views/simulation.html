@@ -1,6 +1,18 @@
 <h1>Simulation</h1>
 
+<fieldset>
+  <legend>Simulation Controls</legend>
+  
+  <p>
+    <button type="button" ng-click="fullScreen()">Go full-screen</button>
+    <button type="button" ng-click="reset()">Reset</button>
+  </p>
+
+  <p>Left-mouse to "Orbit", scroll to zoom</p>
+</fieldset>
+
 <div class="g-simulation">
   <!-- TODO: Better directive syntax? -->
-  <div id="simulation" class="g-canvas js-canvas" simulation></div>
+  <div id="simulation" class="g-canvas js-canvas" simulation>
+  </div>
 </div>

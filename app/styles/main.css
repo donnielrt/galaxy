@@ -7738,9 +7738,27 @@ body {
   height: 500px;
   border: 2px solid #eee;
 }
-/* line 101, ../sass/main.scss */
-.g-simulation .g-canvas {
+
+/* line 102, ../sass/main.scss */
+.g-canvas {
   width: 100%;
   height: 100%;
-  background: #000;
+  background: #fff;
+}
+
+/* line 114, ../sass/main.scss */
+:-webkit-full-screen .g-canvas,
+:-moz-full-screen .g-canvas,
+:-ms-fullscreen .g-canvas,
+:full-screen .g-canvas,
+:fullscreen .g-canvas {
+  background: green;
+  width: 100%;
+  height: 100%;
+}
+
+/* line 123, ../sass/main.scss */
+::backdrop,
+::-ms-backdrop {
+  background: yellow;
 }
