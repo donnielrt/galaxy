@@ -1,42 +1,51 @@
 // Karma configuration
+//
+// For all available config options and default values, see:
 // http://karma-runner.github.io/0.10/config/configuration-file.html
 
-module.exports = function(config) {
+module.exports = function (config) {
+  'use strict';
+
   config.set({
+
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
-    // testing framework to use (jasmine/mocha/qunit/...)
+    // frameworks to use
     frameworks: ['jasmine'],
 
     // list of files / patterns to load in the browser
     files: [
-      'app/bower_components/angular/angular.js',
-      'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/bower_components/angular-resource/angular-resource.js',
-      'app/bower_components/angular-cookies/angular-cookies.js',
-      'app/bower_components/angular-sanitize/angular-sanitize.js',
-      'app/bower_components/angular-route/angular-route.js',
-      'app/scripts/*.js',
-      'app/scripts/**/*.js',
-      'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      // loaded without require
+      'app/bower_components/es5-shim/es5-shim.js',
+      'app/bower_components/es5-shim/es5-sham.js',
+      'app/bower_components/jquery/dist/jquery.js',
+      'app/bower_components/jasmine-jquery/lib/jasmine-jquery.js',
+      'app/bower_components/jasmine-flight/lib/jasmine-flight.js',
+
+      // hack to load RequireJS after the shim libs
+      'node_modules/karma-requirejs/lib/require.js',
+      'node_modules/karma-requirejs/lib/adapter.js',
+
+      // loaded with require
+      {pattern: 'app/bower_components/flight/**/*.js', included: false},
+      {pattern: 'app/js/**/*.js', included: false},
+      {pattern: 'test/spec/**/*.spec.js', included: false},
+
+      'test/test-main.js'
     ],
 
-    // list of files / patterns to exclude
-    exclude: [],
+    // list of files to exclude
+    exclude: [
+      'app/js/main.js'
+    ],
 
-    // web server port
-    port: 8080,
-
-    // level of logging
-    // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_INFO,
-
+    // test results reporter to use
+    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
+    reporters: ['progress'],
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
-
+    autoWatch: true,
 
     // Start these browsers, currently available:
     // - Chrome
@@ -46,11 +55,19 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: ['Chrome'],
+    browsers: [
+      'Chrome'
+    ],
 
+    // If browser does not capture in given timeout [ms], kill it
+    captureTimeout: 5000,
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false
+    singleRun: false,
+
+    // Karma will report all the tests that are slower than given time limit (in
+    // ms).
+    reportSlowerThan: 500
   });
 };
